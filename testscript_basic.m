@@ -7,16 +7,13 @@ d = 3e-3; %material thickness
 
 myRequestedlength = 2000;
 
+myFolder = 'C:\Users\Malin\Documents\Forskningsassistent LTH\Signalbehandling\signal-processing\20200228-0001_'; %Working folder
+
 for i = 1 : 32
-    %load(['c:\Users\per\Dropbox (Personal)\Research_BME\AcouPlast\Material properties\Measurements\' ...
-        %'OscilloscopeTest\20200227_steel_long\20200228-0001\' ...
-        %'20200228-0001_' ...
-        %num2str(i,'%02.f') '.mat'])
-        
-    load(['C:\Users\Malin\Dcouments\Forskningsassistent LTH\Signalbehandling\20200228-0001\20200228-0001_01'
-        num2str(i,'%02.f') '.mat'])
+    load([myFolder, num2str(i,'%02.f'), '.mat']);
     As(:,i) = A(1:myRequestedlength); %trim data
 end
+
 
 %overwrite lenght of data
 RequestedLength = myRequestedlength;
