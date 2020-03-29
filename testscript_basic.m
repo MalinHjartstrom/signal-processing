@@ -1,8 +1,9 @@
 %%
-clear
+%clear
 
-close all
+%close all
 
+function time = testscript_basic()
 %Eko fr?n ultraljud i ett materal
     %A is the signal
     %Timeinterval is the time between samples in seconds
@@ -38,20 +39,6 @@ hold on
 Amean = mean(As,2); %column vector containing the mean of each row
 Amean = interp1(tsampled,Amean,t,'spline'); %returns the piecewise polynomial form of Amean(tsampled) using the t algorithm
 
-%%%%%%%%%%%%%%%%%%%%%%%%%<MALIN>%%%%%%%%%%%%%%%%%%%%%%%%%%%
-nbrOfSignals = 1;
-nbrOfPulses = 4;
-echoTimeDelays = zeros(nbrOfSignals,nbrOfPulses);
-for i = 1:nbrOfSignals
-    signal = As(:,i);
-    for j = 1:nbrOfPulses
-        echoTime = signalTimeDelay(signal, Amean, t, RequestedLength);
-        echoTimeDelays(i, j) = echoTime;
-    end
-end
-echoTimeDelays
-%%%%%%%%%%%%%%%%%%%%%%%%%</MALIN>%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 %Plot Amean against time
 plot(t,Amean,'linewidth',2)
 drawnow
@@ -78,7 +65,6 @@ pulse = Amean(fltPulse);
 %     pulse = pulse(1:end-1);%Shortening the pulse length with one if even
 %     "pulse length is even"
 % end
-
 
 tcorr = linspace(t1,(RequestedLength-1)*Tinterval*1e6,(RequestedLength+sum(fltPulse)-1)); %time in us?
 crr = normxcorr2(pulse,Amean);
@@ -107,14 +93,19 @@ title('Pulse echo time')
 xlabel('Eco number')
 ylabel('time (us)')
 
-
-echoTime = mean(diff(tcorr(locs)))
+%echoTime = medelv?rdet av tidsavst?ndet mellan tv? h?gkorrelerande v?rden 
+echoTime = mean(diff(tcorr(locs)));
+%Finding the time where the pulse begins and adding the mean of the
+%difference between the different signals in that pulse
+pulseIndices = find(fltPulse);
+time = tsampled(pulseIndices(1)) + echoTime;
+%time = tcorr(locs(1)) - echoTime
 
 %Coefficient of variation
-CV = std(diff(tcorr(locs)))/echoTime*100 %in percentage
+CV = std(diff(tcorr(locs)))/echoTime*100; %in percentage
 
 %Velocity (m/s)
-c = d*2/echoTime*1e6 %time in s
+c = d*2/echoTime*1e6; %time in s
 
 
 % 
@@ -150,7 +141,7 @@ c = d*2/echoTime*1e6 %time in s
 % % 
 % figure
 % plot(c)
-
+end
 
 
 
