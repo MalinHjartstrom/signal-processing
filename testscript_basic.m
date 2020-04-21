@@ -3,6 +3,8 @@ clear
 
 close all
 
+%Adding a comment
+
 d = 3e-3; %material thickness
 
 myRequestedlength = 2000;
