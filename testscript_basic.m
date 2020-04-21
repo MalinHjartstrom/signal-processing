@@ -5,8 +5,6 @@ close all
 
 d = 3e-3; %material thickness
 
-%ADDING A COMMENT JUST TO DO A COMMIT THROUGH THE TERMINAL
-
 myRequestedlength = 2000;
 
 for i = 1 : 32
