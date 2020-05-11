@@ -15,7 +15,7 @@ for i = 1 : 32
         %'20200228-0001_' ...
         %num2str(i,'%02.f') '.mat'])
         
-    load(['C:\Users\Malin\Dcouments\Forskningsassistent LTH\Signalbehandling\20200228-0001\20200228-0001_01'
+    load(['c:\Users\per\Documents\GitHub\signal-processing\polymerdata\20191210-0001\20191210-0001_' ...
         num2str(i,'%02.f') '.mat'])
     As(:,i) = A(1:myRequestedlength); %trim data
 end
@@ -30,6 +30,7 @@ t = linspace(0,(RequestedLength-1)*Tinterval*1e6,RequestedLength); %time in ?s
 figure
 % subplot(3,1,1)
 plot(tsampled,As)
+set(gca,'fontsize',16);
 
 
 hold on
@@ -63,7 +64,9 @@ tcorr = linspace(t1,(RequestedLength-1)*Tinterval*1e6,(RequestedLength+sum(fltPu
 
 
 crr = normxcorr2(pulse,Amean);
-xlabel('time (?s)')
+xlabel('time (µs)')
+ylabel('amplitude (V)')
+title('Pulse echo signal')
 
 figure
 % subplot(3,1,2)
