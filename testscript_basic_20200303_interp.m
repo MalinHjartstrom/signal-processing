@@ -11,7 +11,10 @@ close all
 %Material thickness assumed to be 1 inch
 d = 0.0254; %material thickness in meters
 
-interPeakTime()
+times = interPeakTime()
+m = mean(times)
+s = std(times)
+cv = s/m
 
 function time_between_peaks = interPeakTime()
 %myRequestedlength = 2000;
@@ -75,8 +78,8 @@ peak1 = xx;
 peak2 = xx2;
 minDist = abs(peak1-peak2)/Tinterval;
 %% Interpolation
-%Interpolerar till 100 ggr h?gre samplingshastighet
-interpolationRate = 100;
+%Interpolerar till 10 ggr h?gre samplingshastighet
+interpolationRate = 10;
 Aabsi = interp(Aabs,interpolationRate);
 ti = interp(t,interpolationRate);
 
@@ -100,12 +103,7 @@ sample_differences = diff(locs)
 time_between_peaks = [diff(ti(locs))].'
 
 
-%% Plotting the mean of the original signal and the (now approximated) peaks
-%Plottar peaks mot originalplot
-%OBS beh?ver avrunda peaksen till heltal f?r att kunna plotta tillsammans
-%med originalsignalen
-
-roundedPeaks = round(locs/interpolationRate);
+%% Plotting the mean of the original signal and the (interpolated) peaks
 
 figure
 plot(t,Aabs,'linewidth',2)
@@ -114,6 +112,8 @@ xlabel('time (us)')
 axis([0 max(t) min(Aabs) max(Aabs)+0.01])
 hold on
 
-plot(t(roundedPeaks),pks, 'ro')
-legend({'Mean of abs(signal)', 'Approximated peaks'})
+plot(ti(locs),pks, 'ro')
+legend({'Mean of abs(signal)', 'Interpolated peaks'})
+
+
 end
