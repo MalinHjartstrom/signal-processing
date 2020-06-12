@@ -221,9 +221,14 @@ downsamplingRatioMode   = ps5000aEnuminfo.enPS5000ARatioMode.PS5000A_RATIO_MODE_
 %                                            downsamplingRatio, downsamplingRatioMode);
  
 
-%% Call measure funtion
+%% Measure the signal n times
 
-signal = measure(4); %measure 4 signals
+n = 4;
+for i = 1:n
+    [~, ~, chA, chB] = invoke(blockGroupObj, 'getBlockData', startIndex, segmentIndex, ...
+                                            downsamplingRatio, downsamplingRatioMode);
+    signal(:,i) = chA;
+end
 
 %% Call interPeakTime function
 
@@ -246,17 +251,6 @@ times
 disconnect(ps5000aDeviceObj);
 delete(ps5000aDeviceObj);
 
-%% Measure the signal n times
-
-function signal = measure(n)
-
-%n = 4;
-for i = 1:n
-    [~, ~, chA, chB] = invoke(blockGroupObj, 'getBlockData', startIndex, segmentIndex, ...
-                                            downsamplingRatio, downsamplingRatioMode);
-    signal(:,i) = chA;
-end
-end
 %% Analyse signal
 
 function time_between_peaks = interPeakTime(signal, interpolationRate, myRequestedlength, Tinterval)
