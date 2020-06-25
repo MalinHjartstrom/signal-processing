@@ -178,9 +178,24 @@ set(triggerGroupObj, 'autoTriggerMs', 1000);
 [status.setSimpleTrigger] = invoke(triggerGroupObj, 'setSimpleTrigger', 0, 1000, 2);
 
 %% Configure function generator
+%% Obtain Signalgenerator group object
+% Signal Generator properties and functions are located in the Instrument
+% Driver's Signalgenerator group.
+
+sigGenGroupObj = get(ps5000aDeviceObj, 'Signalgenerator');
+sigGenGroupObj = sigGenGroupObj(1);
+
+%% Function generator - simple
+% Output a sine wave, 2000 mVpp, 0 mV offset, 1000 Hz (uses preset values
+% for offset, peak to peak voltage and frequency from the Signalgenerator
+% groups's properties).
+
+% waveType : 0 (ps5000aEnuminfo.enPS5000AWaveType.PS5000A_SINE)
+
+[status.setSigGenBuiltInSimple] = invoke(sigGenGroupObj, 'setSigGenBuiltInSimple', 0);
 
 
-
+% [status.setSigGenOff] = invoke(sigGenGroupObj, 'setSigGenOff');
 
 %% Set block parameters and capture data
 % Capture a block of data and retrieve data values for channels A and B.
