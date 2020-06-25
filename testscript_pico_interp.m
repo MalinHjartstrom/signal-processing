@@ -177,6 +177,11 @@ set(triggerGroupObj, 'autoTriggerMs', 1000);
 
 [status.setSimpleTrigger] = invoke(triggerGroupObj, 'setSimpleTrigger', 0, 1000, 2);
 
+%% Configure function generator
+
+
+
+
 %% Set block parameters and capture data
 % Capture a block of data and retrieve data values for channels A and B.
 
