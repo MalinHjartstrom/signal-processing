@@ -1,5 +1,5 @@
 %%
-clear all
+clc
 
 close all
 
@@ -11,18 +11,19 @@ close all
 %Material thickness assumed to be 1 inch
 d = 0.0254; %material thickness in meters
 
-times = interPeakTime()
-m = mean(times)
-s = std(times)
-cv = s/m
 
-function time_between_peaks = interPeakTime()
+
 %myRequestedlength = 2000;
+
+folder = uigetdir(... 
+    'c:\Users\per\Lund University\Experimental acoustofluidics group - AcouPlast - AcouPlast\Material properties\Measurements\20200626_DTU_polymers\' ...
+    );
+files = dir(folder);
 
 
 %For steel:
 myRequestedlength = 6250;
-myFolder = 'C:\Users\Malin\Documents\Forskningsassistent LTH\Signalbehandling\signal-processing\20200303-0001_'; %Working folder
+% myFolder = 'C:\Users\Malin\Documents\Forskningsassistent LTH\Signalbehandling\signal-processing\20200303-0001_'; %Working folder
 %myFolder = 'C:\Users\Malin\Documents\Forskningsassistent LTH\Signalbehandling\signal-processing\20200228-0001_'; %Working folder
 
 %For polymer:
@@ -34,21 +35,21 @@ myFolder = 'C:\Users\Malin\Documents\Forskningsassistent LTH\Signalbehandling\si
 
 
 for i = 1 : 32
-    load([myFolder, num2str(i,'%02.f'), '.mat']);
-    As(:,i) = A(1:myRequestedlength); %trim data
+    load([folder '\' files(i+2).name],'A','Length','Tstart','Tinterval');
+    As(:,i) = A;
 end
 
 
 %overwrite lenght of data
-RequestedLength = myRequestedlength;
+% RequestedLength = myRequestedlength;
 
-tsampled = linspace(0,(RequestedLength-1)*Tinterval*1e6,RequestedLength); %time in us
-t = linspace(0,(RequestedLength-1)*Tinterval*1e6,RequestedLength); %time in us
+% tsampled = linspace(0,(RequestedLength-1)*Tinterval*1e6,RequestedLength); %time in us
+t = linspace(0,(Length-1)*Tinterval*1e6,Length); %time in us
 
 %Plottar alla signaler mot den samlade tiden
 figure
 % subplot(3,1,1)
-plot(tsampled,As)
+plot(t,As)
 title('All signals')
 xlabel('time (us)')
 
@@ -78,8 +79,8 @@ peak1 = xx;
 peak2 = xx2;
 minDist = abs(peak1-peak2)/Tinterval;
 %% Interpolation
-%Interpolerar till 10 ggr h?gre samplingshastighet
-interpolationRate = 10;
+%Interpolerar t.ex. 10 ggr h?gre samplingshastighet
+interpolationRate = 1;
 Aabsi = interp(Aabs,interpolationRate);
 ti = interp(t,interpolationRate);
 
@@ -116,4 +117,6 @@ plot(ti(locs),pks, 'ro')
 legend({'Mean of abs(signal)', 'Interpolated peaks'})
 
 
-end
+m = mean(times)
+s = std(times)
+cv = s/m
