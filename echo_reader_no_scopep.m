@@ -4,7 +4,7 @@ close all
 
 
 
-d = 29.41e-3; %material thickness in meters
+d = 9.81e-3; %material thickness in meters
 
 %Eko fr?n ultraljud i ett materal
     %A is the signal
@@ -37,8 +37,18 @@ files = dir(folder);
 
 
 for i = 1 : 32
-    load([folder '\' files(i+2).name],'A','Length','Tstart','Tinterval');
-    As(:,i) = A;
+    load([folder '\' files(i+2).name],'A','Length','Tstart','Tinterval','BandPass*');
+    %lookfor bandpass data
+    s = whos('Band*');
+    if isempty(s)
+        As(:,i) = A;
+    else %use the bandpass data
+        Aflt = eval(s.name);
+        Acrop = Aflt(~isnan(Aflt));
+        Length = numel(Acrop);
+        As(:,i) = Acrop;
+        disp('Using bandpassed data')
+    end
 end
 
 
@@ -88,7 +98,7 @@ xlabel('time (us)')
 Amean = mean(As,2); %column vector containing the mean of each row
 Aabs = abs(Amean);
 
-figure
+figure('units','normalized','outerposition',[0 0 1 1])
 plot(t,Aabs,'linewidth',2)
 title('Mean of all signals: Mark two peaks')
 xlabel('time (us)')
@@ -202,7 +212,7 @@ hold on
 
 %% make a fit
 figure
-ft = fittype('U0+U*exp(-alfa*1e-6*2455*t)',...
+ft = fittype(['U0+U*exp(-alfa*1e-6*' num2str(c_avg) '*t)'],...
     'independent','t');
 expFit = fit(times',pks,ft,'robust','bisquare','lower',[0,0,0],'StartPoint',[0,5,100]);
 fitTimes = linspace(times(1),times(end),100);
@@ -210,17 +220,19 @@ plot(fitTimes,expFit(fitTimes))
 hold on
 plot(times,pks,'x')
 alfa = expFit.alfa
+CIfit = confint(expFit);
+alfa_CI = CIfit(:,3)
 
-%% make a fit for alfa
-alfas = [126.4 95.9 69.8 50.33 39.99]
-ds = [1.965 4.837 9.815 19.62 29.41]
-
-ft2 = fittype('alfa0+e*exp(-k*d)',...
-    'independent','d');
-alfaFit = fit(ds',alfas',ft2,'robust','bisquare','lower',[0,0,0],'StartPoint',[0,0,0]);
-d_vec = linspace(ds(1),ds(end),100);
-figure
-plot(d_vec,alfaFit(d_vec))
-hold on
-plot(ds,alfas,'x')
-alfaFit
+% %% make a fit for alfa
+% alfas = [126.4 95.9 69.8 50.33 39.99]
+% ds = [1.965 4.837 9.815 19.62 29.41]
+% 
+% ft2 = fittype('alfa0+e*exp(-k*d)',...
+%     'independent','d');
+% alfaFit = fit(ds',alfas',ft2,'robust','bisquare','lower',[0,0,0],'StartPoint',[0,0,0]);
+% d_vec = linspace(ds(1),ds(end),100);
+% figure
+% plot(d_vec,alfaFit(d_vec))
+% hold on
+% plot(ds,alfas,'x')
+% alfaFit

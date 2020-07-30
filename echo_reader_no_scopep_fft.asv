@@ -40,11 +40,11 @@ for i = 1 : 32
     load([folder '\' files(i+2).name],'A','Length','Tstart','Tinterval','BandPass*');
     %lookfor bandpass data
     s = whos('Band*');
-    if isempty(s)
+    if isempty(s) || true  %true to override the else-statement
         As(:,i) = A;
     else %use the bandpass data
-        A = eval(s.name);
-        Acrop = A(~isnan(A));
+        Aflt = eval(s.name);
+        Acrop = Aflt(~isnan(Aflt));
         Length = numel(Acrop);
         As(:,i) = Acrop;
         disp('Using bandpassed data')
@@ -103,7 +103,7 @@ plot(t,Aabs,'linewidth',2)
 title('Mean of all signals: Mark two peaks')
 xlabel('time (us)')
 axis([0 max(t) min(Aabs) max(Aabs)+0.01])
-annotation('textbox', [0.55, 0.65, 0.3, 0.2], 'String', "Please mark the first interesting peak with a rectangle. Then mark the second relevant peak that is closest to it.")
+annotation('textbox', [0.55, 0.65, 0.3, 0.2], 'String', "Please mark the first interesting peak with a rectangle. Then mark the second relevant peak that is closest to it. Then mark the widht of the first envelope.")
 
 %Markera den minsta (men fortfarande intressanta) peaken f?r att best?mma
 %'MinPeakHeight', samt peaken brevid f?r att best?mma minsta avst?nd mellan
@@ -116,7 +116,12 @@ rect2 = getrect;
 flt2 = t>rect2(1) & t < rect2(1) + rect2(3);
 [peak2, t2] = findpeaks(Aabs(flt2),t(flt2),'NPeaks',1);
 
+rect3 = getrect;
+flt3 = t>rect3(1) & t < rect3(1) + rect3(3);
+
+
 flt = t>=t1; % filter for excluding times before first peak 
+
 
 % [xx, y] = findpeaks;
 % mph = y;
@@ -156,10 +161,10 @@ pks = [peak1;peak2];
 times = [t1,t2];
 
 for i = 1:4
-    flt2 = tAll > times(end) + delta_t1 * 0.998 & tAll < times(end) + delta_t1 * 1.006; %filter out the next relevant peak
-    if numel(tAll(flt2)) == 1
-        times = [times, tAll(flt2)];
-        pks = [pks;pksAll(flt2)];
+    flti = tAll > times(end) + delta_t1 * 0.998 & tAll < times(end) + delta_t1 * 1.006; %filter out the next relevant peak
+    if numel(tAll(flti)) == 1
+        times = [times, tAll(flti)];
+        pks = [pks;pksAll(flti)];
     else
         disp('Dual peak found. Confused.')
         i
@@ -168,12 +173,6 @@ for i = 1:4
 end
         
 
-
-
-    
-    
-    
-    
 % [pks, locs] = findpeaks(Aabsi(flt),ti(flt),'MinPeakDistance',minDist,'MinPeakHeight',mph);
 % pks = [peak1;pks]; %add the peak 1 that was idientiied by the user
 % locs = [t1, locs];
@@ -210,7 +209,59 @@ plot(time_between_peaks)
 hold on
 
 
-%% make a fit
+%% Find alfa
+Nfft=2^14; %fft number of elements
+figure
+for i = 1:numel(pks)
+    % filter out the pulse envelopes and do fft
+    Fi=fft(Amean(flt3), Nfft);
+    A_w(:,i)=abs(Fi); %store the spectra
+    flt3 = circshift(flt3,delta_t1*1e-6/Tinterval);
+    plot(t(flt3),Amean(flt3))
+    hold on
+    drawnow
+    pause
+end
+% generate a frequency vector
+fs=1/Tinterval;
+f=(0:Nfft-1)/Nfft*fs;
+figure
+plot(f,A_w)
+freqRange = [1e6 3e6];
+xlim(freqRange);
+xlabel('frequency (Hz)')
+ylabel('pulse amplitude')
+
+%% find max amplitude frequency and fit amplitudes
+fltFreq = f > freqRange(1) & f < freqRange(2); %make a filter for the intersting range
+for i = 1 : size(A_w,2)
+    A_w_temp = A_w(:,i);
+    A_w_flt(:,i) = A_w_temp(fltFreq); %apply the filter
+end
+Freq_flt = f(fltFreq); %apply the filter
+
+[Apeak, ixPeak] = max(A_w_flt(:,1)); %Find the max amplitude of the first pulse
+fPeak = Freq_flt(ixPeak); %find the frequency at max
+
+AsAtMax = A_w_flt(ixPeak,:);
+
+%%
+figure
+xVec = ones(1:numel(times))*2*d; %construct interrogation points for the path
+ft = fittype('U0+U*exp(-alfa*x)','independent','x');
+expFit = fit(xVec',AsAtMax,ft,'robust','bisquare','lower',[0,0,0],'StartPoint',[0,5,100]);
+fitX = linspace(xVec(1),xVec(end),100);
+plot(fitTimes,expFit(fitTimes))
+hold on
+plot(times,pks,'x')
+alfa = expFit.alfa
+CIfit = confint(expFit);
+alfa_CI = CIfit(:,3)
+
+
+
+
+%%
 figure
 ft = fittype(['U0+U*exp(-alfa*1e-6*' num2str(c_avg) '*t)'],...
     'independent','t');
