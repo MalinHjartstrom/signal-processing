@@ -4,7 +4,7 @@ close all
 
 
 
-d = 29.41e-3; %material thickness in meters
+d = 19.62e-3; %material thickness in meters
 
 %Eko fr?n ultraljud i ett materal
     %A is the signal
@@ -146,7 +146,7 @@ pks = [peak1;peak2];
 times = [t1,t2];
 
 for i = 1:4
-    flt2 = tAll > times(end) + delta_t1 * 0.998 & tAll < times(end) + delta_t1 * 1.006; %filter out the next relevant peak
+    flt2 = tAll > times(end) + delta_t1 * 0.995 & tAll < times(end) + delta_t1 * 1.005; %filter out the next relevant peak
     if numel(tAll(flt2)) == 1
         times = [times, tAll(flt2)];
         pks = [pks;pksAll(flt2)];
@@ -212,8 +212,8 @@ plot(times,pks,'x')
 alfa = expFit.alfa
 
 %% make a fit for alfa
-alfas = [126.4 95.9 69.8 50.33 39.99]
-ds = [1.965 4.837 9.815 19.62 29.41]
+alfas = [126.4 95.9 69.8 44.7]
+ds = [1.965 4.837 9.815 19.62]
 
 ft2 = fittype('alfa0+e*exp(-k*d)',...
     'independent','d');
