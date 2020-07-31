@@ -4,24 +4,17 @@ close all
 
 
 
-d = 14.64e-3; %material thickness in meters
+d = 19.62e-3; %material thickness in meters
 
 %Eko fr?n ultraljud i ett materal
     %A is the signal
     %Timeinterval is the time between samples in seconds
     %Requested length is the number of samples
 
-
-
-
-
-%myRequestedlength = 2000;
-
 folder = uigetdir(... 
     'c:\Users\per\Lund University\Experimental acoustofluidics group - AcouPlast - AcouPlast\Material properties\Measurements\' ...
     );
 files = dir(folder);
-
 
 %For steel:
 % myRequestedlength = 6250;
@@ -198,11 +191,11 @@ time_between_peaks = diff(times)'
 % plot(t(roundedPeaks),pks, 'ro')
 % legend({'Mean of abs(signal)', 'Approximated peaks'})
 
-d %material thickness
-c_avg = mean(2*d./time_between_peaks*1e6)
+c_avg = mean(2*d./time_between_peaks*1e6);
 c_std = std(2*d./time_between_peaks*1e6)
 c_cv = c_std/c_avg*100
-
+d %material thickness
+c_avg
 
 figure(4)
 plot(time_between_peaks)
@@ -275,16 +268,16 @@ alfa_CI = CIfit(:,3)
 % alfa_CI = CIfit(:,3)
 
 
-% %% make a fit for alfas for different thickness
-alfas = [70 50 42]
-ds = [4.837 9.81 14.64]
-
-ft2 = fittype('alfa0+e*exp(-k*d)',...
-    'independent','d');
-alfaFit = fit(ds',alfas',ft2,'robust','bisquare','lower',[0,0,0],'StartPoint',[0,0,0]);
-d_vec = linspace(ds(1),ds(end)*2,100);
-figure
-plot(d_vec,alfaFit(d_vec))
-hold on
-plot(ds,alfas,'x')
-alfaFit
+% % %% make a fit for alfas for different thickness
+% alfas = [70 50 42]
+% ds = [4.837 9.81 14.64]
+% 
+% ft2 = fittype('alfa0+e*exp(-k*d)',...
+%     'independent','d');
+% alfaFit = fit(ds',alfas',ft2,'robust','bisquare','lower',[0,0,0],'StartPoint',[0,0,0]);
+% d_vec = linspace(ds(1),ds(end)*2,100);
+% figure
+% plot(d_vec,alfaFit(d_vec))
+% hold on
+% plot(ds,alfas,'x')
+% alfaFit
