@@ -4,7 +4,7 @@ close all
 
 
 
-d = 9.81e-3; %material thickness in meters
+d = 14.64e-3; %material thickness in meters
 
 %Eko fr?n ultraljud i ett materal
     %A is the signal
@@ -246,22 +246,22 @@ fPeak = Freq_flt(ixPeak); %find the frequency at max
 AsAtMax = A_w_flt(ixPeak,:);
 
 %% Derive alfa based on the peak amplitudes
-% figure
-% xVec = (1:numel(times))*2*d; %construct interrogation points for the path
-% ft = fittype('U0+U*exp(-alfa*x)','independent','x');
-% expFit = fit(xVec',AsAtMax',ft,'robust','bisquare','lower',[0,0,0],'StartPoint',[0,5,100]);
-% fitX = linspace(xVec(1),xVec(end),100);
-% plot(fitX,expFit(fitX))
-% hold on
-% plot(xVec,AsAtMax,'x')
-% alfa = expFit.alfa
-% CIfit = confint(expFit);
-% alfa_CI = CIfit(:,3)
-% 
-% 
-% 
-% 
-% % make a fit
+figure
+xVec = (1:numel(times))*2*d; %construct interrogation points for the path
+ft = fittype('U0+U*exp(-alfa*x)','independent','x');
+expFit = fit(xVec',AsAtMax',ft,'robust','bisquare','lower',[0,0,0],'StartPoint',[0,5,100]);
+fitX = linspace(xVec(1),xVec(end),100);
+plot(fitX,expFit(fitX))
+hold on
+plot(xVec,AsAtMax,'x')
+alfa = expFit.alfa
+CIfit = confint(expFit);
+alfa_CI = CIfit(:,3)
+
+
+
+
+%% make a fit
 % figure
 % ft = fittype(['U0+U*exp(-alfa*1e-6*' num2str(c_avg) '*t)'],...
 %     'independent','t');
@@ -273,17 +273,18 @@ AsAtMax = A_w_flt(ixPeak,:);
 % alfa = expFit.alfa
 % CIfit = confint(expFit);
 % alfa_CI = CIfit(:,3)
-% 
-% % %% make a fit for alfa
-% % alfas = [126.4 95.9 69.8 50.33 39.99]
-% % ds = [1.965 4.837 9.815 19.62 29.41]
-% % 
-% % ft2 = fittype('alfa0+e*exp(-k*d)',...
-% %     'independent','d');
-% % alfaFit = fit(ds',alfas',ft2,'robust','bisquare','lower',[0,0,0],'StartPoint',[0,0,0]);
-% % d_vec = linspace(ds(1),ds(end),100);
-% % figure
-% % plot(d_vec,alfaFit(d_vec))
-% % hold on
-% % plot(ds,alfas,'x')
-% % alfaFit
+
+
+% %% make a fit for alfas for different thickness
+alfas = [70 50 42]
+ds = [4.837 9.81 14.64]
+
+ft2 = fittype('alfa0+e*exp(-k*d)',...
+    'independent','d');
+alfaFit = fit(ds',alfas',ft2,'robust','bisquare','lower',[0,0,0],'StartPoint',[0,0,0]);
+d_vec = linspace(ds(1),ds(end)*2,100);
+figure
+plot(d_vec,alfaFit(d_vec))
+hold on
+plot(ds,alfas,'x')
+alfaFit
